@@ -1,4 +1,4 @@
-warm_fuzzy_things
+Warm Fuzzy Things
 =================
 
 Haskell stuff, misc codes
