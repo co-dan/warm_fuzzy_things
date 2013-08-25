@@ -17,6 +17,8 @@ cabal-version:       >=1.8
 
 library
   exposed-modules:     Data.Stream,
+                       Data.Functor.Algebra,
+                       Data.Functor.HAlgebra,
                        Control.Monad.Trans.Maybe,
                        Control.Monad.Replay,
                        Control.Automata
