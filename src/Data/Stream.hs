@@ -1,9 +1,9 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 module Data.Stream (Stream(..), h, t) where
-   
+
 import Control.Applicative
-import Control.Monad (liftM)
 import Control.Arrow
+import Control.Monad       (liftM)
 
 -- | The Stream datatype
 newtype Stream a = Stream { unS :: [a] }
@@ -11,7 +11,7 @@ newtype Stream a = Stream { unS :: [a] }
 
 -- | The head of the stream
 h :: Stream a -> a
-h = head . unS 
+h = head . unS
 
 -- | The tail of the stream
 t :: Stream a -> Stream a
@@ -32,7 +32,7 @@ instance Functor Stream where
 instance Applicative Stream where
   pure = Stream . repeat
   fs <*> ss = Stream $ (f s):unS (fs' <*> ss')
-    where f = h fs 
+    where f = h fs
           s = h ss
           fs' = t fs
           ss' = t ss
@@ -42,7 +42,7 @@ join = unfold hhtt
   where hhtt = hh &&& tt
         hh   = h . h
         tt   = fmap t . t
-          
-instance Monad Stream where          
+
+instance Monad Stream where
   return = pure
   m >>= f = join (fmap f m)

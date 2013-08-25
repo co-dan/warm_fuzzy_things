@@ -1,4 +1,5 @@
-{-# LANGUAGE GADTs, RankNTypes #-}
+{-# LANGUAGE GADTs      #-}
+{-# LANGUAGE RankNTypes #-}
 module Data.Functor.HAlgebra where
 
 import Data.Functor.Identity
@@ -43,7 +44,7 @@ evalId (If a b c) = Identity $ case runIdentity a of
     True  -> runIdentity b
     False -> runIdentity c
 
--- Initial "higer-order" algebra    
+-- Initial "higer-order" algebra
 type Expr = Mu2 ExprF
 
 --  Higer-order functor typeclass

@@ -12,7 +12,7 @@ data ExprF a = Const Int
              | Mult  a a
              deriving (Functor)
 
---  Simple integer algebra                      
+--  Simple integer algebra
 type ExprIntAlg = Algebra ExprF Int
 
 evalInt :: ExprIntAlg
@@ -28,7 +28,7 @@ type InitAlg f = Algebra f (Mu f)
 evalInitAlg :: (Functor f) => InitAlg f
 evalInitAlg = Alg Fix
 
--- peel the 'Mu' off              
+-- peel the 'Mu' off
 unFix :: Mu f -> f (Mu f)
 unFix (Fix a) = a
 
@@ -43,7 +43,7 @@ cata alg = unAlg alg . fmap (cata alg) . unFix
 
 test :: Mu ExprF
 test = Fix $ Add one
-                 (Fix (Mult two two))  
+                 (Fix (Mult two two))
   where
     one = Fix (Const 1)
     two = Fix (Const 2)
