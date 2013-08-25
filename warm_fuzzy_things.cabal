@@ -21,7 +21,8 @@ library
                        Data.Functor.HAlgebra,
                        Control.Monad.Trans.Maybe,
                        Control.Monad.Replay,
-                       Control.Automata
+                       Control.Automata,
+                       Origami
   -- other-modules:       
   build-depends:       base >=4.5,
                        mtl >=2.1,
