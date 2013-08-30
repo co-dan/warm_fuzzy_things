@@ -1,6 +1,6 @@
 > module Origami where
 
-Solutions and code for the articleN
+Solutions and code for the great article/chapter
 "Origami programming" by Jeremy Gibbons
 
 > import Data.Maybe
@@ -168,7 +168,7 @@ Excercise 3.6. Express unfoldL in terms of unfoldL', and vice versa.
 >     f = fst . fromJust . h
 >     g = snd . fromJust . h
      
----------------------------------------- 
+----------------------------------------
      
 The universal property of unfoldL
 
@@ -247,7 +247,7 @@ Implement those two functions.
 
 Exercise 3.10. The case deleteL y (Cons x xs) requires both the tail
 xs and the result deleteL y xs on that tail, so this function is
-another paramorphism. Re- define deleteL using paraL.
+another paramorphism. Redefine deleteL using paraL.
 
 > deleteL :: Eq b => b -> [b] -> [b]
 > deleteL y = paraL f []
@@ -321,7 +321,7 @@ using unfoldL′.
 Exercise 3.14. The characterisation of insert as an unfold is a bit
 unsatisfactory, because once the correct position is found at which
 to insert the element, the remainder of the list must still be copied
-item by item. The directly recur- sive definition did not have this
+item by item. The directly recursive definition did not have this
 problem: one branch shares the remainder of the original list without
 making a recursive call. This general pattern can be captured as
 another recursion operator, known as an apomorphism
