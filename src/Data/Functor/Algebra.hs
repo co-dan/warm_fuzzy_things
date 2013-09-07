@@ -1,8 +1,12 @@
-{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveFunctor      #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE FlexibleContexts   #-}
 module Data.Functor.Algebra where
 
+import Text.PrettyPrint as PP
+
 --  General types
-newtype Algebra f a = Alg { unAlg :: (f a -> a) }
+type Algebra f a = f a -> a
 newtype Mu f = Fix (f (Mu f))
 
 
@@ -10,13 +14,23 @@ newtype Mu f = Fix (f (Mu f))
 data ExprF a = Const Int
              | Add   a a
              | Mult  a a
-             deriving (Functor)
+             deriving (Functor, Show)
+
+type Expr = Mu ExprF
+
+ppr :: Expr -> Doc
+ppr = cata pprinter
+
+pprinter :: ExprF Doc -> Doc
+pprinter (Const  i) = text $ show i
+pprinter (Add  a b) = PP.parens (a <+> text "+" <+> b)
+pprinter (Mult a b) = PP.parens (a <+> text "*" <+> b)
 
 --  Simple integer algebra
 type ExprIntAlg = Algebra ExprF Int
 
 evalInt :: ExprIntAlg
-evalInt = Alg evalInt'
+evalInt = evalInt'
   where
     evalInt' (Const i)  = i
     evalInt' (Add  a b) = a + b
@@ -26,7 +40,7 @@ evalInt = Alg evalInt'
 type InitAlg f = Algebra f (Mu f)
 
 evalInitAlg :: (Functor f) => InitAlg f
-evalInitAlg = Alg Fix
+evalInitAlg = Fix
 
 -- peel the 'Mu' off
 unFix :: Mu f -> f (Mu f)
@@ -37,16 +51,45 @@ type ExprInitAlg = InitAlg ExprF
 
 
 -- | F-algebra catamorphism
-cata :: (Functor f) => Algebra f a -> (Mu f -> a)
+cata :: (Functor f) => Algebra f a -> Mu f -> a
 cata alg = unAlg alg . fmap (cata alg) . unFix
 
 
 test :: Mu ExprF
-test = Fix $ Add one
-                 (Fix (Mult two two))
+test = Fix $ Add (Fix (Add one zero))
+                 (Fix (Mult two one))
   where
+    zero = Fix (Const 0)
     one = Fix (Const 1)
     two = Fix (Const 2)
 
 
 --------------------------------------------------
+optMult, optPlus :: Algebra ExprF Expr
+optMult = Alg optMult'
+optPlus = Alg optPlus'
+
+optMult' :: ExprF Expr -> Expr
+optMult' (Mult (Fix (Const 0)) _) = Fix (Const 0)
+optMult' (Mult (Fix (Const 1)) e) = e
+optMult' (Mult e (Fix (Const 1))) = e
+optMult' (Mult _ (Fix (Const 0))) = Fix (Const 0)
+optMult' e                        = Fix e
+
+optPlus' :: ExprF Expr -> Expr
+optPlus' (Add (Fix (Const 0)) e) = e
+optPlus' (Add e (Fix (Const 0))) = e
+optPlus' e                       = Fix e
+
+
+-- algComp :: Algebra f a -> Algebra g (Mu f) -> Algebra f a
+
+-- opt+ :: ExprF (Mu ExprF) -> Mu ExprF
+-- opt* :: ExprF (Mu ExprF) -> Mu ExprF
+
+-- x :: f a -> a
+-- y :: g (Mu f) -> Mu f
+
+-- cata x . cata y :: Mu g -> a
+
+-- f ~ ExprF, a ~ Expr ~ Mu ExprF
