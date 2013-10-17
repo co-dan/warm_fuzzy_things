@@ -118,6 +118,13 @@ can be written straightforwardly as a fold; show how.
 
 ----------------------------------------
 
+We can define a left fold for lists in terms of `foldL`
+
+> leftFold :: (b -> a -> b) -> b -> [a] -> b
+> leftFold f z ls = foldL (\b g -> \x -> g (f x b)) id ls z
+
+----------------------------------------
+
 Paramorphisms
 
 > paraL :: (a -> ([a], b) -> b) -> b -> [a] -> b
