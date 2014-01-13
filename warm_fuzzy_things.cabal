@@ -22,7 +22,8 @@ library
                        Control.Monad.Trans.Maybe,
                        Control.Monad.Replay,
                        Control.Automata,
-                       Origami
+                       Origami,
+                       Image
   -- other-modules:       
   build-depends:       base >=4.5,
                        mtl >=2.1,
