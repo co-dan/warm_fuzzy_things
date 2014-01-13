@@ -52,7 +52,7 @@ type ExprInitAlg = InitAlg ExprF
 
 -- | F-algebra catamorphism
 cata :: (Functor f) => Algebra f a -> Mu f -> a
-cata alg = unAlg alg . fmap (cata alg) . unFix
+cata alg = alg . fmap (cata alg) . unFix
 
 
 test :: Mu ExprF
@@ -66,8 +66,8 @@ test = Fix $ Add (Fix (Add one zero))
 
 --------------------------------------------------
 optMult, optPlus :: Algebra ExprF Expr
-optMult = Alg optMult'
-optPlus = Alg optPlus'
+optMult = optMult'
+optPlus = optPlus'
 
 optMult' :: ExprF Expr -> Expr
 optMult' (Mult (Fix (Const 0)) _) = Fix (Const 0)
