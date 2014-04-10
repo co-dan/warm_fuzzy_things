@@ -31,5 +31,7 @@ library
                        transformers >=0.3,
                        monad-supply >=0.3,
                        pretty,
-                       singletons
+                       singletons,
+                       containers,
+                       recursion-schemes
   hs-source-dirs:      src
