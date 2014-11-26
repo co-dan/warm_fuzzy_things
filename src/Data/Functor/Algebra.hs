@@ -5,22 +5,40 @@ module Data.Functor.Algebra where
 
 import Text.PrettyPrint as PP
 
---  General types
+-- * General types and definitions
 type Algebra f a = f a -> a
-newtype Mu f = Fix (f (Mu f))
+type Coalgebra f a = a -> f a
+newtype Mu f = Fix { unFix :: f (Mu f) }
 
+-- | F-algebra catamorphism
+cata :: (Functor f) => Algebra f a -> Mu f -> a
+cata h = h . fmap (cata h) . unFix
+
+-- | F-coalgebra anamorphism
+ana :: (Functor f) => Coalgebra f a -> a -> Mu f
+ana h = Fix . fmap (ana h) . h
+
+-- | Hylomorphism
+hylo :: (Functor f) => Algebra f b -> Coalgebra f a -> a -> b
+hylo f g = cata f . ana g
+
+-- | Equivalent definition of a hylomorphism
+hylo2 :: (Functor f) => Algebra f b -> Coalgebra f a -> a -> b
+hylo2 f g = f . fmap (hylo2 f g) . g
 
 --  Dummy expression type/functor
 data ExprF a = Const Int
              | Add   a a
              | Mult  a a
              deriving (Functor, Show)
-
 type Expr = Mu ExprF
+
+-- * Algebra examples
 
 ppr :: Expr -> Doc
 ppr = cata pprinter
 
+-- An example of an ExprF-algebra that prerry-prints expression trees
 pprinter :: ExprF Doc -> Doc
 pprinter (Const  i) = text $ show i
 pprinter (Add  a b) = PP.parens (a <+> text "+" <+> b)
@@ -29,6 +47,7 @@ pprinter (Mult a b) = PP.parens (a <+> text "*" <+> b)
 --  Simple integer algebra
 type ExprIntAlg = Algebra ExprF Int
 
+-- siple interpreter
 evalInt :: ExprIntAlg
 evalInt = evalInt'
   where
@@ -42,18 +61,7 @@ type InitAlg f = Algebra f (Mu f)
 evalInitAlg :: (Functor f) => InitAlg f
 evalInitAlg = Fix
 
--- peel the 'Mu' off
-unFix :: Mu f -> f (Mu f)
-unFix (Fix a) = a
-
-
 type ExprInitAlg = InitAlg ExprF
-
-
--- | F-algebra catamorphism
-cata :: (Functor f) => Algebra f a -> Mu f -> a
-cata alg = alg . fmap (cata alg) . unFix
-
 
 test :: Mu ExprF
 test = Fix $ Add (Fix (Add one zero))
@@ -81,15 +89,24 @@ optPlus' (Add (Fix (Const 0)) e) = e
 optPlus' (Add e (Fix (Const 0))) = e
 optPlus' e                       = Fix e
 
+-- * Coalgebra examples
 
--- algComp :: Algebra f a -> Algebra g (Mu f) -> Algebra f a
+plusTree :: Int -> ExprF Int
+plusTree n
+  | n < 0     = Const 1
+  | otherwise = Add (n-1) (n-2)
 
--- opt+ :: ExprF (Mu ExprF) -> Mu ExprF
--- opt* :: ExprF (Mu ExprF) -> Mu ExprF
+ex1 :: Int -> Doc
+ex1 = hylo pprinter plusTree
 
--- x :: f a -> a
--- y :: g (Mu f) -> Mu f
+ex2 :: Int -> Int
+ex2 = hylo evalInt plusTree
 
--- cata x . cata y :: Mu g -> a
+-- | Build up a balanced binary tree of addition
+buildUp :: Int -> ExprF Int
+buildUp n
+  | n <= 0    = Const 1
+  | otherwise = Add (n-1) (n-1)
 
--- f ~ ExprF, a ~ Expr ~ Mu ExprF
+-- pow2 n == 2^n
+pow2 = hylo evalInt buildUp
